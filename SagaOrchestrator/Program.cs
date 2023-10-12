@@ -23,12 +23,17 @@ try
     builder.Services.AddSwaggerGen();
     var connectionString = builder.Configuration.GetConnectionString("SagaDbConnection");
 
-    builder.Services.AddDbContext<SagaStateMachineDbContext>(config => config.UseSqlServer(connectionString,
-         options => options.MigrationsHistoryTable("SagaMigrations", "SAGAS")));
+    builder.Services.AddDbContext<SagaStateMachineDbContext>(config =>
+    {
+        config.EnableDetailedErrors();
+        config.EnableSensitiveDataLogging();
+        config.UseSqlServer(connectionString, options => options.MigrationsHistoryTable("SagaMigrations", "SAGAS"));
+    });
 
     builder.Services.AddMassTransit(busConfigure =>
     {
         busConfigure.AddLogging(c => c.AddDebug());
+
         busConfigure.SetKebabCaseEndpointNameFormatter();
 
         busConfigure.AddSagaStateMachine<OrderStateMachine, OrderStateInstance>()
@@ -36,21 +41,6 @@ try
         {
             options.ExistingDbContext<SagaStateMachineDbContext>();
             options.LockStatementProvider = new SqlServerLockStatementProvider();
-
-            //options.AddDbContext<DbContext, SagaStateMachineDbContext>((provider, optionsBuilder) =>
-            //{
-            //    optionsBuilder.UseSqlServer(connectionString, m =>
-            //    {
-            //        m.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-            //        m.MigrationsHistoryTable("SagasMigrations", "SAGAS");
-
-            //    });
-
-            //});
-            //options.ConcurrencyMode = ConcurrencyMode.Pessimistic;
-
-            //// you will need to create the lock statement provider
-            //options.LockStatementProvider = new MySqlLockStatementProvider();
         });
 
 

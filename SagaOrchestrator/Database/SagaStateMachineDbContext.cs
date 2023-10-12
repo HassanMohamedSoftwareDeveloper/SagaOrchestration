@@ -10,11 +10,6 @@ public class SagaStateMachineDbContext(DbContextOptions<SagaStateMachineDbContex
     public DbSet<OrderStateInstance> OrderStates { get; set; }
     protected override IEnumerable<ISagaClassMap> Configurations
     {
-
         get { yield return new StateMachineMap(); }
-    }
-    void t()
-    {
-        MassTransit.EntityFrameworkCoreIntegration.SqlLockStatementProvider t = null;
     }
 }
